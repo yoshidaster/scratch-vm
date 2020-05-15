@@ -78,7 +78,7 @@ class Scratch3LineBot {
 
     connectAPI(args) {
         const token = Cast.toString(args.TOKEN);
-        if (this.ws) this.ws.close();
+        if (this.checkConnection()) this.ws.close();
         
         this.ws = new WebSocket(`${this.apiUrl}?token=${token}`);
         log.log("open socket");
@@ -96,11 +96,11 @@ class Scratch3LineBot {
     }
 
     checkConnection() {
-        return this.ws !== null;
+        return (this.ws && this.ws.readyState !== WebSocket.CLOSED);
     }
 
     disconnectAPI() {
-        if (this.ws)
+        if (this.checkConnection())
             this.ws.close();
     }
 
@@ -124,7 +124,7 @@ class Scratch3LineBot {
     }
 
     replyMessage(args) {
-        if (this.ws) {
+        if (this.checkConnection()) {
             const replyText = Cast.toString(args.TEXT);
             const payload = JSON.stringify({
                 id: this.grabbedMessage.id,
