@@ -62,14 +62,25 @@ class Scratch3LineBot {
                 {
                     opcode: 'replyMessage',
                     blockType: BlockType.COMMAND,
-                    text: '返信する [TEXT]',
+                    text: 'メッセージに返信する [TEXT]',
                     arguments: {
                         TEXT: {
-                            type: ArgumentType.OBJECT,
-                            defaultValue: ""
+                            type: ArgumentType.STRING,
+                            defaultValue: "text"
                         }
                     }
                 },
+                {
+                    opcode: 'pushMessage',
+                    blockType: BlockType.COMMAND,
+                    text: '新しいメッセージを送信する [TEXT]',
+                    arguments: {
+                        TEXT: {
+                            type: ArgumentType.STRING,
+                            defaultValue: "text"
+                        }
+                    }
+                }
             ],
             menus: {
             }
@@ -128,11 +139,26 @@ class Scratch3LineBot {
             const replyText = Cast.toString(args.TEXT);
             const payload = JSON.stringify({
                 id: this.grabbedMessage.id,
+                mode: 'reply',
                 text: replyText
             });
             console.log(payload);
             this.ws.send(payload);
             this.grabbedMessage = null;
+        } else {
+            log.log('lost socket');
+        }
+    }
+
+    pushMessage(args) {
+        if (this.checkConnection()) {
+            const replyText = Cast.toString(args.TEXT);
+            const payload = JSON.stringify({
+                mode: 'push',
+                text: replyText
+            });
+            console.log(payload);
+            this.ws.send(payload);
         } else {
             log.log('lost socket');
         }
